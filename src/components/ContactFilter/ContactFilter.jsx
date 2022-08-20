@@ -12,37 +12,24 @@ export class ContactFilter extends Component {
     filterValue: '',
   };
 
-  updateRootState = filterValue => {
-    this.props.onFilterChange(filterValue);
-  };
+  componentDidUpdate(_, prevState) {
+    if (prevState.filterValue !== this.state.filterValue)
+      this.props.onFilterChange(this.state.filterValue);
 
-  setFilterValue = incoming => {
-    let value = null;
+    this.toggleEscListener();
+  }
 
-    switch (typeof incoming) {
-      case 'object':
-        value = incoming.currentTarget.value;
-        break;
-
-      case 'string':
-        value = incoming;
-        break;
-
-      default:
-        return;
-    }
-
-    this.setState({ filterValue: value });
-    this.updateRootState(value);
+  setFilterValue = ({ currentTarget }) => {
+    this.setState({ filterValue: currentTarget.value });
   };
 
   onEscPress = ({ code }) => {
     if (code !== 'Escape') return;
 
-    this.setFilterValue('');
+    this.setState({ filterValue: '' });
   };
 
-  addEscListener = () => {
+  toggleEscListener = () => {
     if (onkeydown && onkeydown !== this.onEscPress) return;
     if (onkeydown && onkeydown === this.onEscPress && this.state.filterValue)
       return;
@@ -52,8 +39,6 @@ export class ContactFilter extends Component {
   };
 
   render() {
-    this.addEscListener();
-
     return (
       <FilterContainer>
         <FilterField

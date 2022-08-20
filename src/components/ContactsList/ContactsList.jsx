@@ -1,12 +1,8 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import {
-  sortContacts,
-  normalizeFilterValue,
-  normalizeNumber,
-  normalizeNumberForCallLink,
-} from 'utils';
+import { sortContacts, normalizeFilterValue, normalizeNumber } from 'utils';
 import { theme } from 'constants/theme';
+import { Contact } from './Contact/Contact';
 import {
   ContactsTableBox,
   ContactsTable,
@@ -17,14 +13,6 @@ import {
   SortByNumberButton,
   SotrByNumberIconASC,
   SotrByNumberIconDSC,
-  TableDataRow,
-  TableDataCell,
-  NameDataContainer,
-  NumberDataContainer,
-  DeleteButton,
-  DeleteIcon,
-  CallLink,
-  CallLinkIcon,
   TableDataCellEmpty,
   CenteredSpan,
   NoResultsIcon,
@@ -87,8 +75,6 @@ export class ContactsList extends Component {
     const isOrderByNumberASC = this.state.isSortOrderASC.number;
 
     const sortButtonIconSize = theme.sizes.sortButtonIcon;
-    const deleteButtonIconSize = theme.sizes.deleteButtonIcon;
-    const callLinkIconSize = theme.sizes.callLinkIcon;
     const noResultIconSize = theme.sizes.noResultIcon;
 
     return (
@@ -144,35 +130,14 @@ export class ContactsList extends Component {
           <tbody>
             {preparedContacts.length ? (
               preparedContacts.map(({ id, name, number }, idx) => (
-                <TableDataRow key={id} isLight={idx % 2 === 0}>
-                  <TableDataCell>
-                    <DeleteButton
-                      type="button"
-                      value={id}
-                      aria-label={`Delete contact ${name}`}
-                      aria-controls="DeletePrompt"
-                      aria-expanded={false}
-                      data-target="DeletePrompt"
-                      onClick={onContactDelete}
-                    >
-                      <DeleteIcon size={deleteButtonIconSize} />
-                    </DeleteButton>
-                  </TableDataCell>
-                  <TableDataCell>
-                    <NameDataContainer>{name}</NameDataContainer>
-                  </TableDataCell>
-                  <TableDataCell>
-                    <NumberDataContainer>{number}</NumberDataContainer>
-                  </TableDataCell>
-                  <TableDataCell>
-                    <CallLink
-                      href={`tel:${normalizeNumberForCallLink(number)}`}
-                      aria-label={`Call ${name}`}
-                    >
-                      <CallLinkIcon size={callLinkIconSize} />
-                    </CallLink>
-                  </TableDataCell>
-                </TableDataRow>
+                <Contact
+                  key={id}
+                  id={id}
+                  name={name}
+                  number={number}
+                  isLight={idx % 2 === 0}
+                  onContactDelete={onContactDelete}
+                />
               ))
             ) : filterValue ? (
               <tr>

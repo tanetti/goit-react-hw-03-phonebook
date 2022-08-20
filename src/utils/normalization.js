@@ -1,4 +1,8 @@
-export const truncateInnerWhitespaces = value => value.replace(/\s\s+/g, ' ');
+export const truncateInnerWhitespaces = value => {
+  if (!value) return '';
+
+  return value.replace(/\s\s+/g, ' ');
+};
 
 export const normalizeNumber = number =>
   number

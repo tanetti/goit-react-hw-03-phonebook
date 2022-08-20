@@ -1,4 +1,4 @@
-const transitionDuration = 250;
+export const transitionDuration = 250;
 const transitionFunction = 'ease-out';
 
 export const theme = Object.freeze({

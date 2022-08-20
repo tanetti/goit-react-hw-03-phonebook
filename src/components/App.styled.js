@@ -48,11 +48,11 @@ export const AddContactButton = styled.button`
   }
 `;
 
-export const AddContactIcon = styled(BiUserPlus)`
+export const AddContactButtonIcon = styled(BiUserPlus)`
   fill: currentColor;
 `;
 
-export const AddContactTitle = styled.span`
+export const AddContactButtonTitle = styled.span`
   padding-left: ${({ theme }) => theme.space[3]};
 
   font-weight: ${({ theme }) => theme.fontWeights.semiBold};
@@ -60,29 +60,6 @@ export const AddContactTitle = styled.span`
   @media screen and (max-width: ${({ theme }) => theme.breakPoints.beforeMin}) {
     display: none;
   }
-`;
-
-export const Backdrop = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-
-  width: 100vw;
-  height: 100%;
-  padding: ${({ theme }) => theme.space[4]};
-
-  background-color: ${({ theme }) => theme.colors.backdropBG};
-  backdrop-filter: blur(4px);
-
-  opacity: ${({ shouldShown }) => (shouldShown ? 1 : 0)};
-  visibility: ${({ shouldShown }) => (shouldShown ? 'initial' : 'hidden')};
-  pointer-events: ${({ shouldShown }) => (shouldShown ? 'initial' : 'none')};
-
-  overflow: hidden;
-
-  transition: ${({ theme }) => theme.transitions.opacity},
-    ${({ theme }) => theme.transitions.visibility};
 `;
 
 export const SectionTitle = styled.h2`

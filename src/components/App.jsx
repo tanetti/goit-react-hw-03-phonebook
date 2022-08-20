@@ -2,20 +2,20 @@ import { Component } from 'react';
 import { Notify } from 'notiflix';
 import { GlobalStyles } from 'components/GlobalStyles/GlobalStyles';
 import { theme } from 'constants/theme';
+import { readContactsFromLS, writeContactsToLS } from 'utils';
 import { PageTitle } from 'components/PageTitle/PageTitle';
 import { Section, Container } from 'components/Shared';
 import {
   HeaderContainer,
   AddContactButton,
-  AddContactIcon,
-  AddContactTitle,
-  Backdrop,
+  AddContactButtonIcon,
+  AddContactButtonTitle,
   SectionTitle,
 } from 'components/App.styled';
 import { ContactFilter } from 'components/ContactFilter/ContactFilter';
 import { AddContactForm } from 'components/AddContactForm/AddContactForm';
 import { ContactsList } from 'components/ContactsList/ContactsList';
-import { DeleteContactPrompt } from 'components/DeleteContactPrompt/DeleteContactPrompt';
+import { Modal } from 'components/Modal/Modal';
 
 Notify.init({
   position: 'right-bottom',
@@ -25,76 +25,49 @@ Notify.init({
   clickToClose: true,
   cssAnimationStyle: 'from-right',
   success: {
-    background: '#2c9403',
+    background: theme.colors.success,
   },
   failure: {
-    background: '#db1212',
+    background: theme.colors.error,
   },
 });
 
 export class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-      { id: 'id-5', name: 'Dudka Volodymyr', number: '+38(066) 33-445-99' },
-    ],
+    contacts: [],
     filter: '',
 
-    currentShown: null,
-    shouldBackdropShown: false,
-    shouldAddFormShown: false,
-    shouldDeletePromptShown: false,
+    shouldAddContactModalShown: false,
+    modalActivator: null,
   };
 
-  openModal = ({ currentTarget }) => {
-    const target = currentTarget.dataset.target;
+  componentDidMount() {
+    const savedContacts = readContactsFromLS();
 
-    if (!target) return;
+    if (savedContacts) this.setState({ contacts: savedContacts });
+  }
 
-    onkeydown = this.onEscPress;
+  componentDidUpdate(_, { contacts: prevContacts }) {
+    const { contacts: currContacts } = this.state;
 
-    this.toggleAriaExpanded(currentTarget);
+    if (prevContacts.length !== currContacts.length)
+      writeContactsToLS(currContacts);
+  }
 
-    this.setState({
-      currentShown: currentTarget,
-      shouldBackdropShown: true,
-    });
-
-    setTimeout(() => {
-      this.setState({
-        [`should${target}Shown`]: true,
-      });
-    }, 0);
-  };
-
-  closeModal = () => {
-    onkeydown = null;
-
-    this.toggleAriaExpanded(this.state.currentShown);
+  toggleAddContactModal = evt => {
+    this.toggleAriaExpanded(
+      evt ? evt.currentTarget : this.state.modalActivator
+    );
 
     this.setState({
-      currentShown: null,
-      shouldBackdropShown: false,
-      shouldAddFormShown: false,
-      shouldDeletePromptShown: false,
+      shouldAddContactModalShown: evt ? true : false,
+      modalActivator: evt ? evt.currentTarget : null,
     });
   };
 
   toggleAriaExpanded = target => {
     if (target.ariaExpanded === 'false') return (target.ariaExpanded = true);
-    if (target.ariaExpanded === 'true') target.ariaExpanded = false;
-  };
-
-  onBackdropClick = ({ currentTarget, target }) =>
-    currentTarget === target && this.closeModal();
-
-  onEscPress = ({ code }) => {
-    if (code !== 'Escape') return;
-
-    this.closeModal();
+    target.ariaExpanded = false;
   };
 
   addNewContact = newContact => {
@@ -102,24 +75,20 @@ export class App extends Component {
       contacts: [...prevState.contacts, newContact],
     }));
 
-    this.closeModal();
     Notify.success(`New contact was successfully added`);
   };
 
-  deleteContact = () => {
+  deleteContact = id => {
     this.setState(prevState => {
       const cuttedContacts = [];
 
       prevState.contacts.forEach(
-        contact =>
-          contact.id !== prevState.currentShown.value &&
-          cuttedContacts.push(contact)
+        contact => contact.id !== id && cuttedContacts.push(contact)
       );
 
       return { contacts: cuttedContacts };
     });
 
-    this.closeModal();
     Notify.success(`Contact was successfully deleted`);
   };
 
@@ -131,43 +100,31 @@ export class App extends Component {
     return (
       <>
         <GlobalStyles />
-
         <header>
           <HeaderContainer>
             <ContactFilter onFilterChange={this.changeFilterValue} />
             <AddContactButton
               type="button"
               aria-label="Add new contact"
-              aria-controls="AddForm"
+              aria-controls="modal-root"
               aria-expanded={false}
-              data-target="AddForm"
-              onClick={this.openModal}
+              onClick={this.toggleAddContactModal}
             >
-              <AddContactIcon size={theme.sizes.addContactIcon} />
-              <AddContactTitle>Add contact</AddContactTitle>
+              <AddContactButtonIcon size={theme.sizes.addContactIcon} />
+              <AddContactButtonTitle>Add contact</AddContactButtonTitle>
             </AddContactButton>
+            {this.state.shouldAddContactModalShown && (
+              <Modal
+                title="Add new contact"
+                onClose={this.toggleAddContactModal}
+              >
+                <AddContactForm
+                  contacts={this.state.contacts}
+                  onNewContactAdd={this.addNewContact}
+                />
+              </Modal>
+            )}
           </HeaderContainer>
-
-          <Backdrop
-            shouldShown={this.state.shouldBackdropShown}
-            onClick={this.onBackdropClick}
-          >
-            <AddContactForm
-              id="AddForm"
-              contacts={this.state.contacts}
-              shouldShown={this.state.shouldAddFormShown}
-              onNewContactAdd={this.addNewContact}
-              onClose={this.closeModal}
-            />
-            <DeleteContactPrompt
-              id="DeletePrompt"
-              contacts={this.state.contacts}
-              delettingTarget={this.state.currentShown}
-              shouldShown={this.state.shouldDeletePromptShown}
-              onContactDelete={this.deleteContact}
-              onClose={this.closeModal}
-            />
-          </Backdrop>
         </header>
 
         <main>
@@ -178,7 +135,7 @@ export class App extends Component {
               <ContactsList
                 contacts={this.state.contacts}
                 filter={this.state.filter}
-                onContactDelete={this.openModal}
+                onContactDelete={this.deleteContact}
               />
             </Container>
           </Section>

@@ -1,10 +1,6 @@
-import {
-  ModalContainer,
-  ModalTitle,
-  SafeButton,
-  UnsafeButton,
-} from 'components/Shared';
-import { theme } from 'constants/theme';
+import PropTypes from 'prop-types';
+import { SafeButton, UnsafeButton } from 'components/Shared';
+import { theme, transitionDuration } from 'constants/theme';
 import {
   DelettingCaptionContainer,
   DelettingContact,
@@ -12,48 +8,33 @@ import {
   ButtonContainer,
 } from './DeleteContactPrompt.styled';
 
-const getNameOfDelettingTarget = (contacts, delettingID) => {
-  let delettingName = null;
+export const DeleteContactPrompt = ({ id, name, onContactDelete, onClose }) => {
+  const onDeleteButtonClick = () => {
+    onClose();
 
-  for (const contact of contacts) {
-    if (contact.id !== delettingID) continue;
-
-    delettingName = contact.name;
-    break;
-  }
-
-  return delettingName;
-};
-
-export const DeleteContactPrompt = ({
-  contacts,
-  delettingTarget,
-  shouldShown,
-  onContactDelete,
-  onClose,
-}) => {
-  if (!delettingTarget) return;
-
-  const delettingName = getNameOfDelettingTarget(
-    contacts,
-    delettingTarget.value
-  );
+    setTimeout(() => onContactDelete(id), transitionDuration);
+  };
 
   return (
-    <ModalContainer shouldShown={shouldShown}>
-      <ModalTitle>Are you sure?</ModalTitle>
+    <>
       <DelettingCaptionContainer>
         <DelettingContactIcon size={theme.sizes.delettingContactIcon} />
-        <DelettingContact>{delettingName}</DelettingContact>
+        <DelettingContact>{name}</DelettingContact>
       </DelettingCaptionContainer>
       <ButtonContainer>
-        <UnsafeButton type="button" onClick={onContactDelete}>
+        <UnsafeButton type="button" onClick={onDeleteButtonClick}>
           Delete
         </UnsafeButton>
         <SafeButton type="button" onClick={onClose}>
           Cancel
         </SafeButton>
       </ButtonContainer>
-    </ModalContainer>
+    </>
   );
+};
+
+DeleteContactPrompt.propTypes = {
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  onContactDelete: PropTypes.func.isRequired,
 };
