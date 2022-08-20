@@ -4,7 +4,7 @@ const transitionFunction = 'ease-out';
 export const theme = Object.freeze({
   colors: {
     darkText: '#333',
-    lightText: '#edf1f2',
+    lightText: '#cdd1d2',
     whiteText: '#fff',
     placeholder: '#8697a6',
 
