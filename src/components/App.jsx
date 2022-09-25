@@ -79,15 +79,9 @@ export class App extends Component {
   };
 
   deleteContact = id => {
-    this.setState(prevState => {
-      const cuttedContacts = [];
-
-      prevState.contacts.forEach(
-        contact => contact.id !== id && cuttedContacts.push(contact)
-      );
-
-      return { contacts: cuttedContacts };
-    });
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== id),
+    }));
 
     Notify.success(`Contact was successfully deleted`);
   };
